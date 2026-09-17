@@ -1,0 +1,86 @@
+File structure for the live-teaching-system
+Generated on: 2026-09-16
+
+live-teaching-system/
+├── apache.htaccess
+├── index.php
+├── login.php
+├── register.php
+├── logout.php
+├── live_teaching_system.sql
+├── file_structure.txt
+│
+├── admin/
+│   ├── classes.php
+│   ├── create-user.php
+│   ├── dashboard.php
+│   ├── payments.php
+│   ├── reports.php
+│   └── users.php
+│
+├── ajax/
+│   ├── get_notifications.php
+│   ├── mark_all_read.php
+│   └── mark_notification_read.php
+│
+├── assets/
+│   ├── css/
+│   │   └── style.css
+│   ├── images/
+│   └── js/
+│       └── app.js
+│
+├── classes/
+│   ├── class.php
+│   ├── course-view.php
+│   ├── index.php
+│   ├── join-stream.php
+│   ├── join.php
+│   ├── mark-lesson-complete.php
+│   ├── mark-lesson-progress.php
+│   └── watch-video.php
+│
+├── config/
+│   └── database.php
+│
+├── dashboard/
+│   ├── attendance.php
+│   ├── index.php
+│   └── my-classes.php
+│
+├── includes/
+│   ├── auth.php
+│   ├── csrf.php
+│   ├── footer.php
+│   ├── header.php
+│   ├── notification-bell.php
+│   └── notifications.php
+│
+├── notifications/
+│   └── index.php
+│
+├── payments/
+│   ├── checkout.php
+│   └── success.php
+│
+├── teacher/
+│   ├── add-class.php
+│   ├── attendance.php
+│   ├── classes.php
+│   ├── course-content.php
+│   ├── dashboard.php
+│   ├── edit-class.php
+│   ├── edit-lesson.php
+│   ├── live-stream.php
+│   ├── students.php
+│   ├── upload-handler.php
+│   └── upload-video.php
+│
+└── uploads/
+    ├── documents/
+    │   └── {class_id}/
+    │       └── {random}.pdf
+    ├── recordings/
+    ├── thumbnails/
+    └── videos/
+        └── lesson_*.mp4

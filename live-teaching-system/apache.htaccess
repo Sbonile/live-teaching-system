@@ -1,0 +1,9 @@
+# uploads/.htaccess
+Options -Indexes
+Order Deny,Allow
+Deny from all
+
+<FilesMatch "\.(mp4|webm|ogg)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
