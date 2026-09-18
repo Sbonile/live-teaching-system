@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 07, 2026 at 11:16 AM
+-- Generation Time: Sep 16, 2026 at 02:55 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -41,7 +41,9 @@ CREATE TABLE `attendance` (
 --
 
 INSERT INTO `attendance` (`id`, `student_id`, `class_id`, `session_date`, `status`, `notes`) VALUES
-(1, 2, 1, '2026-06-12', 'present', NULL);
+(1, 2, 1, '2026-06-12', 'present', NULL),
+(2, 3, 4, '2026-09-07', 'present', NULL),
+(3, 3, 1, '2026-09-14', 'present', 'Good');
 
 -- --------------------------------------------------------
 
@@ -62,6 +64,8 @@ CREATE TABLE `course_lessons` (
   `duration` varchar(50) DEFAULT NULL,
   `order_position` int(11) NOT NULL DEFAULT 0,
   `is_free_preview` tinyint(1) NOT NULL DEFAULT 0,
+  `is_locked` tinyint(1) NOT NULL DEFAULT 0,
+  `primary_document_id` int(11) DEFAULT NULL,
   `status` enum('draft','published') NOT NULL DEFAULT 'draft',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -71,9 +75,42 @@ CREATE TABLE `course_lessons` (
 -- Dumping data for table `course_lessons`
 --
 
-INSERT INTO `course_lessons` (`id`, `class_id`, `teacher_id`, `title`, `description`, `video_url`, `video_type`, `transcript`, `transcript_text`, `duration`, `order_position`, `is_free_preview`, `status`, `created_at`, `updated_at`) VALUES
-(1, 3, 2, 'Zulu', '', 'uploads/videos/lesson_6a2c1ee7f2c52_1781276391.mp4', 'upload', NULL, NULL, '', 1, 0, 'draft', '2026-06-12 14:59:51', '2026-06-12 14:59:51'),
-(2, 1, 2, 'Testing', '', 'uploads/videos/lesson_6a2c2330cf872_1781277488.mp4', 'upload', NULL, NULL, '', 1, 1, 'draft', '2026-06-12 15:18:08', '2026-06-12 15:18:08');
+INSERT INTO `course_lessons` (`id`, `class_id`, `teacher_id`, `title`, `description`, `video_url`, `video_type`, `transcript`, `transcript_text`, `duration`, `order_position`, `is_free_preview`, `is_locked`, `primary_document_id`, `status`, `created_at`, `updated_at`) VALUES
+(1, 3, 2, 'Zulu', '', 'uploads/videos/lesson_6a2c1ee7f2c52_1781276391.mp4', 'upload', NULL, NULL, '', 1, 0, 0, NULL, 'draft', '2026-06-12 14:59:51', '2026-06-12 14:59:51'),
+(2, 1, 2, 'Testing', '', 'uploads/videos/lesson_6aaa694fe8ea9_1789552975.mp4', 'upload', NULL, NULL, '', 1, 0, 0, NULL, 'published', '2026-06-12 15:18:08', '2026-09-16 10:02:55'),
+(6, 1, 2, 'Testing 2', '', 'uploads/videos/lesson_6aaa6db2d6026_1789554098.mp4', 'upload', NULL, NULL, '', 2, 0, 0, NULL, 'published', '2026-09-16 10:04:47', '2026-09-16 12:31:24'),
+(7, 4, 2, 'IsiZulu lesson 1', '', 'uploads/videos/lesson_6aaa710dee032_1789554957.mp4', 'upload', NULL, NULL, '', 1, 0, 1, NULL, 'published', '2026-09-16 10:35:57', '2026-09-16 11:25:19');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `documents`
+--
+
+CREATE TABLE `documents` (
+  `id` int(11) NOT NULL,
+  `class_id` int(11) NOT NULL,
+  `lesson_id` int(11) DEFAULT NULL,
+  `teacher_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `category` enum('past_paper','memo','worksheet','notes','slides','textbook','other') NOT NULL DEFAULT 'other',
+  `original_name` varchar(255) NOT NULL,
+  `storage_path` varchar(500) NOT NULL,
+  `mime_type` varchar(150) NOT NULL,
+  `size_bytes` bigint(20) UNSIGNED NOT NULL,
+  `download_count` int(11) NOT NULL DEFAULT 0,
+  `is_published` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `documents`
+--
+
+INSERT INTO `documents` (`id`, `class_id`, `lesson_id`, `teacher_id`, `title`, `description`, `category`, `original_name`, `storage_path`, `mime_type`, `size_bytes`, `download_count`, `is_published`, `created_at`, `updated_at`) VALUES
+(2, 1, 6, 2, 'Maths P2', '', 'past_paper', 'marty_the_robot.pdf', 'uploads/documents/1/f53627fb2587a5b7e11eb63d.pdf', 'application/pdf', 12000161, 0, 1, '2026-09-16 12:31:52', '2026-09-16 12:31:52');
 
 -- --------------------------------------------------------
 
@@ -100,9 +137,12 @@ CREATE TABLE `enrollments` (
 --
 
 INSERT INTO `enrollments` (`id`, `student_id`, `class_id`, `payment_status`, `payment_method`, `payment_reference`, `amount_paid`, `paid_at`, `attendance`, `certificate_issued`, `enrolled_at`) VALUES
-(1, 2, 1, 'paid', NULL, NULL, 0.00, NULL, 1, 0, '2026-06-12 11:31:08'),
+(1, 2, 1, 'refunded', NULL, NULL, 0.00, NULL, 1, 0, '2026-06-12 11:31:08'),
 (2, 2, 2, 'paid', 'eft', 'PAY-6A2C18FC7200C', 399.00, NULL, 0, 0, '2026-06-12 14:22:02'),
-(3, 2, 3, 'paid', 'card', 'PAY-6A2C1910BC4A9', 599.00, NULL, 0, 0, '2026-06-12 14:34:52');
+(3, 2, 3, 'paid', 'card', 'PAY-6A2C1910BC4A9', 599.00, NULL, 0, 0, '2026-06-12 14:34:52'),
+(4, 3, 1, 'paid', 'card', 'PAY-6A9E82D694A7E', 499.00, NULL, 1, 0, '2026-09-07 09:24:35'),
+(5, 3, 4, 'paid', 'eft', 'PAY-6AA8F03036F64', 200.00, NULL, 1, 1, '2026-09-07 11:04:40'),
+(6, 3, 2, 'pending', NULL, NULL, 0.00, NULL, 0, 0, '2026-09-14 12:17:02');
 
 -- --------------------------------------------------------
 
@@ -122,6 +162,15 @@ CREATE TABLE `lesson_progress` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `lesson_progress`
+--
+
+INSERT INTO `lesson_progress` (`id`, `student_id`, `lesson_id`, `class_id`, `status`, `watched_duration`, `last_position`, `completed_at`, `created_at`, `updated_at`) VALUES
+(1, 3, 2, 1, 'completed', 0, 0, '2026-09-15 09:45:19', '2026-09-15 07:45:19', '2026-09-15 07:45:19'),
+(2, 3, 7, 4, 'completed', 0, 0, '2026-09-16 12:45:34', '2026-09-16 10:45:34', '2026-09-16 10:45:34'),
+(3, 3, 6, 1, 'completed', 202, 202, '2026-09-16 12:47:19', '2026-09-16 10:47:08', '2026-09-16 10:47:19');
 
 -- --------------------------------------------------------
 
@@ -169,6 +218,7 @@ CREATE TABLE `live_classes` (
   `current_students` int(11) NOT NULL DEFAULT 0,
   `status` enum('upcoming','ongoing','completed','cancelled') NOT NULL DEFAULT 'upcoming',
   `is_featured` tinyint(1) NOT NULL DEFAULT 0,
+  `sequential_unlock` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `thumbnail` varchar(500) DEFAULT NULL,
   `preview_video` varchar(500) DEFAULT NULL,
@@ -180,10 +230,10 @@ CREATE TABLE `live_classes` (
 -- Dumping data for table `live_classes`
 --
 
-INSERT INTO `live_classes` (`id`, `teacher_id`, `title`, `description`, `short_description`, `image`, `price`, `duration`, `level`, `category`, `start_date`, `end_date`, `schedule`, `meeting_link`, `meeting_id`, `meeting_password`, `recording_url`, `materials`, `max_students`, `current_students`, `status`, `is_featured`, `created_at`, `thumbnail`, `preview_video`, `stream_platform`, `stream_embed`) VALUES
-(1, 2, 'Mathematics Grade 12 - Exam Prep', 'Comprehensive exam preparation for Grade 12 Mathematics learners. Calculus, Algebra, Geometry and more.', 'Ace your Matric exams with this intensive course', NULL, 499.00, '6 weeks', 'intermediate', 'Mathematics', '2026-06-19 11:25:49', NULL, NULL, 'https://meet.jit.si/liveteach_class_1_c20ad4d7', NULL, NULL, NULL, NULL, 50, 0, 'completed', 1, '2026-06-12 09:25:49', NULL, NULL, '', NULL),
-(2, 2, 'English First Additional Language', 'Improve your English skills for academic and professional success.', 'Master English grammar, writing and comprehension', NULL, 399.00, '8 weeks', 'beginner', 'Languages', '2026-06-26 11:25:49', NULL, NULL, 'https://meet.jit.si/liveteach_class_2_b6d767d2', NULL, NULL, NULL, NULL, 50, 1, 'completed', 1, '2026-06-12 09:25:49', NULL, NULL, '', NULL),
-(3, 2, 'Physical Sciences - Physics', 'Understanding the laws of physics with practical examples and experiments.', 'Physics made simple for Grade 10-12 learners', NULL, 599.00, '10 weeks', 'advanced', 'Science', '2026-07-03 11:25:49', NULL, NULL, 'https://meet.jit.si/liveteach_class_3_6364d3f0', 'liveteach_class_3_6364d3f0', NULL, NULL, NULL, 50, 1, 'completed', 0, '2026-06-12 09:25:49', NULL, NULL, '', NULL);
+INSERT INTO `live_classes` (`id`, `teacher_id`, `title`, `description`, `short_description`, `image`, `price`, `duration`, `level`, `category`, `start_date`, `end_date`, `schedule`, `meeting_link`, `meeting_id`, `meeting_password`, `recording_url`, `materials`, `max_students`, `current_students`, `status`, `is_featured`, `sequential_unlock`, `created_at`, `thumbnail`, `preview_video`, `stream_platform`, `stream_embed`) VALUES
+(1, 2, 'Mathematics Grade 12 - Exam Prep', 'Comprehensive exam preparation for Grade 12 Mathematics learners. Calculus, Algebra, Geometry and more.', 'Ace your Matric exams with this intensive course', NULL, 499.00, '6 weeks', 'intermediate', 'Mathematics', '2026-06-19 11:25:49', NULL, NULL, 'https://meet.google.com/akq-ygwr-wgv', NULL, NULL, NULL, NULL, 50, 0, 'completed', 1, 0, '2026-06-12 09:25:49', NULL, NULL, 'google_meet', NULL),
+(2, 2, 'English First Additional Language', 'Improve your English skills for academic and professional success.', 'Master English grammar, writing and comprehension', NULL, 399.00, '8 weeks', 'beginner', 'Languages', '2026-06-26 11:25:49', NULL, NULL, 'https://meet.jit.si/liveteach_class_2_b6d767d2', NULL, NULL, NULL, NULL, 50, 1, 'completed', 1, 0, '2026-06-12 09:25:49', NULL, NULL, '', NULL),
+(4, 2, 'IsiZulu', 'Isizulu ulimi lwebele', '', NULL, 200.00, '2 weeks, 8 hours', 'beginner', 'IsiZulu', '2026-09-07 13:49:00', NULL, NULL, 'https://meet.jit.si/liveteach_class_4_a1d0c6e8', NULL, NULL, NULL, NULL, 4, 1, 'completed', 0, 0, '2026-09-07 09:49:31', NULL, NULL, '', NULL);
 
 -- --------------------------------------------------------
 
@@ -245,7 +295,10 @@ INSERT INTO `live_streams` (`id`, `class_id`, `teacher_id`, `stream_key`, `strea
 (31, 1, 2, '', 'https://meet.jit.si/liveteach_class_1_c20ad4d7', 'https://meet.jit.si/liveteach_class_1_c20ad4d7', 'jitsi', 'ended', '2026-06-12 17:14:15', '2026-06-12 17:14:15', '2026-06-12 17:14:24', 0, '2026-06-12 15:14:15'),
 (32, 2, 2, '', 'https://meet.jit.si/liveteach_class_2_b6d767d2', 'https://meet.jit.si/liveteach_class_2_b6d767d2', 'jitsi', 'ended', '2026-06-12 17:15:59', '2026-06-12 17:15:59', '2026-06-12 17:16:26', 0, '2026-06-12 15:15:59'),
 (33, 1, 2, '', 'https://meet.jit.si/liveteach_class_1_c20ad4d7', 'https://meet.jit.si/liveteach_class_1_c20ad4d7', 'jitsi', 'live', '2026-06-13 15:13:13', '2026-06-13 15:13:13', NULL, 0, '2026-06-13 13:13:13'),
-(34, 1, 2, '', 'https://meet.jit.si/liveteach_class_1_c20ad4d7', 'https://meet.jit.si/liveteach_class_1_c20ad4d7', 'jitsi', 'ended', '2026-06-13 15:13:43', '2026-06-13 15:13:43', '2026-06-13 15:13:55', 0, '2026-06-13 13:13:43');
+(34, 1, 2, '', 'https://meet.jit.si/liveteach_class_1_c20ad4d7', 'https://meet.jit.si/liveteach_class_1_c20ad4d7', 'jitsi', 'ended', '2026-06-13 15:13:43', '2026-06-13 15:13:43', '2026-06-13 15:13:55', 0, '2026-06-13 13:13:43'),
+(35, 4, 2, '', 'https://meet.jit.si/liveteach_class_4_a1d0c6e8', 'https://meet.jit.si/liveteach_class_4_a1d0c6e8', 'jitsi', 'ended', '2026-09-07 13:04:11', '2026-09-07 13:04:11', '2026-09-07 13:06:37', 0, '2026-09-07 11:04:11'),
+(36, 1, 2, '', 'https://meet.google.com/zoz-iwve-tzu', 'https://meet.google.com/zoz-iwve-tzu', 'google_meet', 'ended', '2026-09-14 13:13:10', '2026-09-14 13:13:10', '2026-09-14 13:15:06', 0, '2026-09-14 11:13:10'),
+(37, 1, 2, '', 'https://meet.google.com/akq-ygwr-wgv', 'https://meet.google.com/akq-ygwr-wgv', 'google_meet', 'ended', '2026-09-14 14:20:03', '2026-09-14 14:20:03', '2026-09-14 14:23:05', 0, '2026-09-14 12:20:03');
 
 -- --------------------------------------------------------
 
@@ -272,7 +325,10 @@ INSERT INTO `notifications` (`id`, `user_id`, `type`, `title`, `message`, `link`
 (1, 2, 'live_stream', '🔴 Live Class Started!', 'The teacher has started the live session for \'Mathematics Grade 12 - Exam Prep\'. Join now!', '../classes/class.php?id=1#live-stream', 1, '2026-06-12 15:00:35'),
 (2, 2, 'live_stream', '🔴 Live Class Started!', 'The teacher has started the live session for \'Mathematics Grade 12 - Exam Prep\'. Join now!', '../classes/class.php?id=1#live-stream', 1, '2026-06-12 15:04:51'),
 (3, 2, 'live_stream', '🔴 Live Class Started!', 'The teacher has started the live session for \'Mathematics Grade 12 - Exam Prep\'. Join now!', '../classes/class.php?id=1#live-stream', 1, '2026-06-12 15:05:46'),
-(4, 2, 'live_stream', '🔴 Live Class Started!', 'The teacher has started the live session for \'Mathematics Grade 12 - Exam Prep\'. Join now!', '../classes/class.php?id=1#live-stream', 1, '2026-06-12 15:09:57');
+(4, 2, 'live_stream', '🔴 Live Class Started!', 'The teacher has started the live session for \'Mathematics Grade 12 - Exam Prep\'. Join now!', '../classes/class.php?id=1#live-stream', 1, '2026-06-12 15:09:57'),
+(5, 3, 'enrollment', '✅ Enrollment Successful', 'You have successfully enrolled in \'Mathematics Grade 12 - Exam Prep\'.', '../dashboard/my-classes.php', 1, '2026-09-07 09:24:38'),
+(6, 3, 'enrollment', '✅ Enrollment Successful', 'You have successfully enrolled in \'IsiZulu\'.', '../dashboard/my-classes.php', 1, '2026-09-07 11:04:43'),
+(7, 3, 'enrollment', '✅ Enrollment Successful', 'You have successfully enrolled in \'IsiZulu\'.', '../dashboard/my-classes.php', 1, '2026-09-15 07:13:52');
 
 -- --------------------------------------------------------
 
@@ -314,7 +370,10 @@ CREATE TABLE `payments` (
 
 INSERT INTO `payments` (`id`, `student_id`, `class_id`, `amount`, `payment_method`, `reference`, `status`, `paid_at`, `created_at`) VALUES
 (1, 2, 2, 399.00, 'eft', 'PAY-6A2C18FC7200C', 'completed', '2026-06-12 16:34:36', '2026-06-12 14:34:36'),
-(2, 2, 3, 599.00, 'card', 'PAY-6A2C1910BC4A9', 'completed', '2026-06-12 16:34:56', '2026-06-12 14:34:56');
+(2, 2, 3, 599.00, 'card', 'PAY-6A2C1910BC4A9', 'completed', '2026-06-12 16:34:56', '2026-06-12 14:34:56'),
+(3, 3, 1, 499.00, 'card', 'PAY-6A9E82D694A7E', 'completed', '2026-09-07 11:24:38', '2026-09-07 09:24:38'),
+(4, 3, 4, 200.00, 'card', 'PAY-6A9E9A4B2528E', 'completed', '2026-09-07 13:04:43', '2026-09-07 11:04:43'),
+(5, 3, 4, 200.00, 'eft', 'PAY-6AA8F03036F64', 'completed', '2026-09-15 09:13:52', '2026-09-15 07:13:52');
 
 -- --------------------------------------------------------
 
@@ -417,6 +476,17 @@ ALTER TABLE `course_lessons`
   ADD KEY `idx_order` (`order_position`);
 
 --
+-- Indexes for table `documents`
+--
+ALTER TABLE `documents`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_class` (`class_id`),
+  ADD KEY `idx_lesson` (`lesson_id`),
+  ADD KEY `idx_teacher` (`teacher_id`),
+  ADD KEY `idx_category` (`category`),
+  ADD KEY `idx_published` (`is_published`);
+
+--
 -- Indexes for table `enrollments`
 --
 ALTER TABLE `enrollments`
@@ -510,25 +580,31 @@ ALTER TABLE `videos`
 -- AUTO_INCREMENT for table `attendance`
 --
 ALTER TABLE `attendance`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `course_lessons`
 --
 ALTER TABLE `course_lessons`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `documents`
+--
+ALTER TABLE `documents`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `enrollments`
 --
 ALTER TABLE `enrollments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `lesson_progress`
 --
 ALTER TABLE `lesson_progress`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `lesson_quizzes`
@@ -540,19 +616,19 @@ ALTER TABLE `lesson_quizzes`
 -- AUTO_INCREMENT for table `live_classes`
 --
 ALTER TABLE `live_classes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `live_streams`
 --
 ALTER TABLE `live_streams`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `notification_preferences`
@@ -564,7 +640,7 @@ ALTER TABLE `notification_preferences`
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `reviews`
